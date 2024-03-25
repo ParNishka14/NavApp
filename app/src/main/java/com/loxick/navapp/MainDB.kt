@@ -1,6 +1,7 @@
 package com.loxick.navapp
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Room
@@ -11,17 +12,19 @@ import java.security.AccessControlContext
     entities = [
         Users::class
     ],
-    version = 1
+    version = 2
 )
 abstract class MainDB : RoomDatabase() {
-    abstract val dao: com.loxick.navapp.Dao
+    abstract fun itemDao(): DaoA
     companion object{
         fun createDataBase(context: Context):MainDB{
+            Log.d("Info:::","DBCreate")
             return Room.databaseBuilder(
                 context,
                 MainDB::class.java,
                 "test.db"
-            ).build()
+            ).fallbackToDestructiveMigration()
+                .build()
         }
     }
 }

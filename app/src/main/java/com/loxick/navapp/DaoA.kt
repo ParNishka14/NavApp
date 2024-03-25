@@ -9,7 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface Dao {
+interface DaoA {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun InsertItem(users: Users)
     @Delete
@@ -18,4 +18,6 @@ interface Dao {
     suspend fun UpdateItem(users: Users)
     @Query("SELECT * FROM usertTable")
     fun getAllItems(): Flow<List<Users>>
+    @Query("DELETE FROM usertTable")
+    fun deleteAllUsers(): Int
 }

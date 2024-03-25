@@ -1,6 +1,8 @@
 package com.loxick.navapp
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -30,11 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
@@ -45,34 +49,51 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.loxick.navapp.ui.theme.NavAppTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.toList
+import java.util.stream.Collectors.toList
+import kotlin.time.measureTime
 
 var loginGlobal = ""
 var passwordGlobal = ""
-
+var listUsers: List<Users> = emptyList()
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            //Database
+            val mvm: MaintViewModel = viewModel(factory = MaintViewModel.factory)
+            val userss = mvm.itemsList.collectAsState(initial = emptyList())
+            //mvm.database.itemDao().deleteAllUsers()
+            //mvm.insertItem("Andrey", "2511")
+            //mvm.insertItem("Danya", "3698")
+            val contextt = LocalContext.current
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "loginScreen") {
-            composable("loginScreen"){
-            loginScreen {
-                    if (loginGlobal == "admin" && passwordGlobal == "admin") {
-                    navController.navigate("newsScreen")
+                composable("loginScreen") {
+                    loginScreen {
+
+                        for (i in 0..userss.value.size - 1)
+                            if (loginGlobal == userss.value.get(i).name && passwordGlobal == userss.value.get(i).password
+                            ) {
+                                navController.navigate("newsScreen")
+                            } else{
+                                Toast.makeText(contextt, "Пользователь не найден", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 }
-            }
-            composable("newsScreen"){
-                newsScreen {
-                    navController.navigate("loginScreen")
+                composable("newsScreen") {
+                    newsScreen {
+                        navController.navigate("loginScreen")
                     }
                 }
             }
         }
     }
-}
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -91,22 +112,32 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(modifier = Modifier.padding(20.dp),text = "PuppyNews", fontSize = 50.sp)
+            Text(modifier = Modifier.padding(20.dp), text = "PuppyNews", fontSize = 50.sp)
             Column(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(modifier = Modifier
-                        .padding(10.dp),value = login.value, onValueChange = {login.value = it; loginGlobal = login.value} , label = { Text(
-                        text = "Login"
-                    )})
+                        .padding(10.dp),
+                        value = login.value,
+                        onValueChange = { login.value = it; loginGlobal = login.value },
+                        label = {
+                            Text(
+                                text = "Login"
+                            )
+                        })
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(modifier = Modifier
-                        .padding(10.dp),value = password.value, onValueChange = {password.value = it; passwordGlobal = password.value}, label = { Text(
-                        text = "Password"
-                    )} )
+                        .padding(10.dp),
+                        value = password.value,
+                        onValueChange = { password.value = it; passwordGlobal = password.value },
+                        label = {
+                            Text(
+                                text = "Password"
+                            )
+                        })
                 }
             }
 
@@ -130,7 +161,7 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceAround,
 
-        ) {
+            ) {
             Text(text = "PuppyNews", fontSize = 40.sp)
             news(1)
             news(2)
@@ -142,47 +173,46 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-@Composable
-private fun news(number:Int){
-    Card(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .height(120.dp),
-    ) {
-        Row(modifier = Modifier,
+    @Composable
+    private fun news(number: Int) {
+        Card(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .height(120.dp),
+        ) {
+            Row(
+                modifier = Modifier,
             ) {
-            Image(painter = painterResource(id = R.drawable.koala), contentDescription = "")
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                Image(painter = painterResource(id = R.drawable.koala), contentDescription = "")
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                    Row(
-                    ) {
+                        Row(
+                        ) {
+                            Text(
+                                text = "News ${number}", color = Color.Gray, fontSize = 30.sp
+                            )
+                        }
                         Text(
-                            text = "News ${number}", color = Color.Gray, fontSize = 30.sp
+                            text = "11.03.2004", color = Color.Gray, fontSize = 30.sp
                         )
-                    }
-                    Text(
-                        text = "11.03.2004", color = Color.Gray, fontSize = 30.sp
-                    )
-                    Box(){
-                        Text(
-                            text = "Чет случилось с коалами и теперь здесь новости про них", color = Color.Gray, fontSize = 15.sp
-                        )
+                        Box() {
+                            Text(
+                                text = "Чет случилось с коалами и теперь здесь новости про них",
+                                color = Color.Gray,
+                                fontSize = 15.sp
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-@Composable
-private fun mainScreen(
-    maintViewModel: MaintViewModel = viewModel(factory = MaintViewModel.factory)
-){
-    var itemList = maintViewModel.itemList.collectAsState(initial = emptyList())
-}
+
