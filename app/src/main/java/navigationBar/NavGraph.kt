@@ -13,7 +13,7 @@ import com.loxick.navapp.passwordGlobal
 
 var nameRecept:String = ""
 var descriptionRecept:String = ""
-var isLoggined: Boolean = true
+var isLoggined: Boolean = false
 var receptIsSelected: Boolean = false
 @Composable
 fun NavGraph(navHostController: NavHostController, context: Context, userss: State<List<Users>>) {
