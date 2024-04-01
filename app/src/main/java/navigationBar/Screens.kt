@@ -39,10 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.loxick.navapp.R
+import com.loxick.navapp.Recept
 import com.loxick.navapp.loginGlobal
 import com.loxick.navapp.passwordGlobal
 
-
+var recepts = emptyArray<Recept>()
 @Composable
  fun loginScreen(context: Context,onClick: () -> Unit) {
     var login = remember {
@@ -124,7 +125,7 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .horizontalScroll(ScrollState( 0)),
+                .horizontalScroll(ScrollState(0)),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             horisontalCards("Еда")
@@ -156,12 +157,14 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
                 "9 Взболтать но не смешивать",10){name, description -> onClick(name, description)}
         recept("Прикол","sdada",3){name, description -> onClick(name, description)}
         recept("Жаренная вода","sdasdad",1) { name, description -> onClick(name, description)}
+
     }
 }
 
 //@Preview
 @Composable
-private fun recept(name: String, description:String, stars:Int, onClick: (name:String, description:String) -> Unit) {
+fun recept(name: String, description:String, stars:Int, onClick: (name:String, description:String) -> Unit) {
+    recepts += Recept(name, description, stars)
     Card(
         modifier = Modifier
             .padding(16.dp)
@@ -277,3 +280,21 @@ fun nonSelectedScreen(OnClick: () -> Unit){
         }
     }
 }
+
+@Composable
+fun favorScreen(onClick: (name:String, description:String) -> Unit){
+    Column(Modifier
+        .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        for(i in 0 .. recepts.size-4){
+            if(recepts[i].liked){
+                recept(name = recepts[i].name, description = recepts[i].description, stars = recepts[i].stars){
+                    name, description ->  onClick(name,description)
+                }
+            }
+        }
+    }
+}
+

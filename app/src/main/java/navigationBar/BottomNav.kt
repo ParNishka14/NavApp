@@ -20,7 +20,8 @@ fun BottomNavigations(navController: NavController ){
 var listScreens = listOf(
     BottomItem.Screen1,
     BottomItem.Screen2,
-    BottomItem.Screen3
+    BottomItem.Screen3,
+    BottomItem.Screen6
 )
     NavigationBar() {
             val  backStackEntry by navController.currentBackStackEntryAsState()
