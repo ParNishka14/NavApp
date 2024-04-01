@@ -5,5 +5,5 @@ class Recept(name: String, description:String, stars:Int) {
     var name = name;
     var description = description;
     var stars = stars
-    var liked:Boolean = true
+    var liked:Boolean = false
 }

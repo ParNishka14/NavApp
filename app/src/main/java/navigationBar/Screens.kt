@@ -38,12 +38,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.loxick.navapp.R
 import com.loxick.navapp.Recept
 import com.loxick.navapp.loginGlobal
 import com.loxick.navapp.passwordGlobal
 
 var recepts = emptyArray<Recept>()
+
+var initialized = mutableStateOf(false)
 @Composable
  fun loginScreen(context: Context,onClick: () -> Unit) {
     var login = remember {
@@ -157,14 +160,31 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
                 "9 Взболтать но не смешивать",10){name, description -> onClick(name, description)}
         recept("Прикол","sdada",3){name, description -> onClick(name, description)}
         recept("Жаренная вода","sdasdad",1) { name, description -> onClick(name, description)}
-
+    initialized.value = true
     }
 }
 
 //@Preview
 @Composable
 fun recept(name: String, description:String, stars:Int, onClick: (name:String, description:String) -> Unit) {
-    recepts += Recept(name, description, stars)
+    var id = remember {
+        mutableStateOf(0)
+    }
+    if(!initialized.value){
+        var thisRecep = remember {
+            mutableStateOf(Recept("","",4))
+        }
+        id.value = addElement(recepts.size)
+        Log.d("sdsds","${id.value}")
+        thisRecep.value = Recept(name, description, stars)
+        var currentRecept = thisRecep.value
+        recepts += currentRecept
+    }
+    for(i in 0.. recepts.size-1){
+        if(recepts[i].name.equals(name)){
+            id.value = i
+        }
+    }
     Card(
         modifier = Modifier
             .padding(16.dp)
@@ -205,6 +225,20 @@ fun recept(name: String, description:String, stars:Int, onClick: (name:String, d
                                 .height(30.dp))
                     }
 
+                    Button(onClick = {
+                        Log.d("Indoo", "${id.value}")
+                        if (recepts[id.value].liked == false){
+                            recepts[id.value].liked = true
+                        } else {
+                            recepts[id.value].liked = false
+                        }
+                    }) {
+                        if(recepts[id.value].liked == false){
+                            Text(text = "В избранное")
+                        } else{
+                            Text(text = "Удалить")
+                        }
+                    }
                 }
             }
         }
@@ -286,15 +320,24 @@ fun favorScreen(onClick: (name:String, description:String) -> Unit){
     Column(Modifier
         .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        //verticalArrangement = Arrangement.Center
     ) {
-        for(i in 0 .. recepts.size-4){
+        Text(text = "Избранное:")
+        for(i in 0 .. recepts.size-1){
             if(recepts[i].liked){
                 recept(name = recepts[i].name, description = recepts[i].description, stars = recepts[i].stars){
-                    name, description ->  onClick(name,description)
+                        name, description -> run {
+                            onClick(name,description)
+                        }
                 }
             }
         }
     }
 }
+
+@Synchronized
+private fun addElement(id:Int):Int{
+    return id
+}
+
 
