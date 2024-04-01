@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -112,13 +115,25 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Cyan)
-            .verticalScroll(ScrollState(0))
             .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround,
 
         ) {
-        Text(text = "Рецепты", fontSize = 40.sp, fontFamily = FontFamily.Monospace)
+        Text(text = "Быстрый поиск", fontSize = 30.sp, fontFamily = FontFamily.Monospace)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .horizontalScroll(ScrollState( 0)),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            horisontalCards("Еда")
+            horisontalCards("Напитки")
+            horisontalCards("Быстрые блюда")
+            horisontalCards("Легкие")
+            horisontalCards("Бюджетные")
+        }
+        Text(text = "Все рецепты", fontSize = 40.sp, fontFamily = FontFamily.Monospace)
         recept("Карбонара",
             "1 Спагетти варить 7-10 минут в кипящей подсоленной воде и откинуть на дуршлаг. \n" +
                     "2 В сковороде разогрейте оливковое масло, положите чеснок и слегка подрумяньте. \n" +
@@ -130,7 +145,15 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
             ,4){name, description -> onClick(name, description)}
         recept("Борщ","sasdasd",7){name, description -> onClick(name, description)}
         recept("Каша","sdasda",3){name, description -> onClick(name, description)}
-        recept("Турбо степан","sdasdasd",10){name, description -> onClick(name, description)}
+        recept("Турбо степан","1 Скителс \n" +
+                "2 Самогон бабки \n" +
+                "3 Боборовое мясо \n" +
+                "4 Виски \n" +
+                "5 Аспирин \n" +
+                "6 Витамин C\n" +
+                "7 Лава от Влада А4\n" +
+                "8 Рассол \n" +
+                "9 Взболтать но не смешивать",10){name, description -> onClick(name, description)}
         recept("Прикол","sdada",3){name, description -> onClick(name, description)}
         recept("Жаренная вода","sdasdad",1) { name, description -> onClick(name, description)}
     }
@@ -191,13 +214,15 @@ fun receptInfo(navHostController: NavHostController, nameRecept:String, descript
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.Gray)
-        .fillMaxSize(),
+        .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top) {
         Text(text = "$nameRecept", fontSize = 50.sp)
         Text(text = "Как приготовить:", fontSize = 30.sp )
         Card(
-            Modifier.padding(10.dp)
+            Modifier
+                .padding(10.dp)
+                .fillMaxWidth()
         ) {
             Text(text = "$description", fontSize = 20.sp)
         }
@@ -207,3 +232,48 @@ fun receptInfo(navHostController: NavHostController, nameRecept:String, descript
     }
 }
 
+//@Preview
+@Composable
+private fun horisontalCards(texti:String){
+    Card(
+        modifier = Modifier
+            .padding(5.dp)
+            .width(120.dp)
+            .height(160.dp),
+    ) {
+        Column(verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()) {
+            Text(text = "$texti")
+        }
+    }
+}
+
+@Composable
+fun nonLoginScreen(OnClick: () -> Unit){
+
+    Column(Modifier
+        .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Вы не вошли в приложуху!", fontSize = 30.sp)
+        Button(onClick = { OnClick() }) {
+            Text(text = "Войти")
+        }
+    }
+}
+@Composable
+fun nonSelectedScreen(OnClick: () -> Unit){
+
+    Column(Modifier
+        .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Выберите рецепт", fontSize = 40.sp)
+        Button(onClick = { OnClick() }) {
+            Text(text = "Выбрать")
+        }
+    }
+}
