@@ -69,7 +69,6 @@ var loginGlobal = ""
 var passwordGlobal = ""
 var listUsers: List<Users> = emptyList()
 
-
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,16 +78,17 @@ class MainActivity : ComponentActivity() {
             //Database
             val mvm: MaintViewModel = viewModel(factory = MaintViewModel.factory)
             var userss = mvm.itemsList.collectAsState(initial = emptyList())
+
             //mvm.database.itemDao().deleteAllUsers()
             //mvm.insertItem("Andrey", "2511")
-            //mvm.insertItem("Danya", "3698")
+           //mvm.insertItem("Danya", "3698")
             val contextt = LocalContext.current
             val navController = rememberNavController()
             Scaffold(
                 bottomBar = {
                     BottomNavigations(navController = navController)
                 }) {
-                NavGraph(navHostController = navController, contextt, userss)
+                NavGraph(navHostController = navController, contextt, userss, mvm)
             }
         }
     }

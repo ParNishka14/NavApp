@@ -20,6 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonDefaults.outlinedButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,12 +40,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.loxick.navapp.MaintViewModel
 import com.loxick.navapp.R
 import com.loxick.navapp.Recept
 import com.loxick.navapp.loginGlobal
 import com.loxick.navapp.passwordGlobal
+import kotlinx.coroutines.GlobalScope
+import navigationBar.currentUser
 
 var recepts = emptyArray<Recept>()
 
@@ -56,13 +65,10 @@ var initialized = mutableStateOf(false)
         mutableStateOf("")
     }
 
-    Image(painter = painterResource(id = R.drawable.getelman), contentDescription = "",
-        contentScale = ContentScale.FillBounds, modifier = Modifier.fillMaxSize()
-    )
-
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(Color(0xFFDFB069)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -104,21 +110,22 @@ var initialized = mutableStateOf(false)
         Button(modifier = Modifier
             .padding(10.dp)
             .width(140.dp)
-            .height(50.dp), onClick = { onClick()}) {
+            .height(50.dp)
+            ,colors = ButtonDefaults.buttonColors(Color.Black), onClick = { onClick()}) {
             Text(text = "Login")
         }
     }
 }
 
 @Composable
-fun receptScreen(onClick: (name:String, description:String) -> Unit) {
+fun receptScreen(mvms:MaintViewModel, onClick: (name:String, description:String) -> Unit) {
     BottomAppBar {
 
     }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Cyan)
+            .background(Color(0xFFDFB069))
             .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround,
@@ -138,7 +145,7 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
             horisontalCards("Бюджетные")
         }
         Text(text = "Все рецепты", fontSize = 40.sp, fontFamily = FontFamily.Monospace)
-        recept("Карбонара",
+        recept(false,"Карбонара",
             "1 Спагетти варить 7-10 минут в кипящей подсоленной воде и откинуть на дуршлаг. \n" +
                     "2 В сковороде разогрейте оливковое масло, положите чеснок и слегка подрумяньте. \n" +
                     "3 Ветчину/бекон мелко нарежьте, добавьте к чесноку и обжаривайте 5 минут. \n" +
@@ -146,10 +153,10 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
                     "5 Спагетти переложить в сотейник с чесноком и ветчиной/беконом. \n" +
                     "6 Добавить взбитые желтки и тёртый сыр, перемешать. Держать на огне 3 минуты. \n" +
                     "7 Посыпать молотым перцем, украсить зеленью и подавать на стол.\n"
-            ,4){name, description -> onClick(name, description)}
-        recept("Борщ","sasdasd",7){name, description -> onClick(name, description)}
-        recept("Каша","sdasda",3){name, description -> onClick(name, description)}
-        recept("Турбо степан","1 Скителс \n" +
+            ,4, mvm = mvms){name, description -> onClick(name, description)}
+        recept(false,"Борщ","sasdasd",7, mvm = mvms ){name, description -> onClick(name, description)}
+        recept(false,"Каша","sdasda",3,mvm = mvms){name, description -> onClick(name, description)}
+        recept(false,"Турбо степан","1 Скителс \n" +
                 "2 Самогон бабки \n" +
                 "3 Боборовое мясо \n" +
                 "4 Виски \n" +
@@ -157,16 +164,16 @@ fun receptScreen(onClick: (name:String, description:String) -> Unit) {
                 "6 Витамин C\n" +
                 "7 Лава от Влада А4\n" +
                 "8 Рассол \n" +
-                "9 Взболтать но не смешивать",10){name, description -> onClick(name, description)}
-        recept("Прикол","sdada",3){name, description -> onClick(name, description)}
-        recept("Жаренная вода","sdasdad",1) { name, description -> onClick(name, description)}
+                "9 Взболтать но не смешивать",10,mvm = mvms){name, description -> onClick(name, description)}
+        recept(false,"Прикол","sdada",3,mvm = mvms){name, description -> onClick(name, description)}
+        recept(false,"Жаренная вода","sdasdad",1,mvm = mvms) { name, description -> onClick(name, description)}
     initialized.value = true
     }
 }
 
 //@Preview
 @Composable
-fun recept(name: String, description:String, stars:Int, onClick: (name:String, description:String) -> Unit) {
+fun recept( liked:Boolean, name: String, description:String, stars:Int, mvm: MaintViewModel, onClick: (name:String, description:String) -> Unit) {
     var id = remember {
         mutableStateOf(0)
     }
@@ -175,7 +182,6 @@ fun recept(name: String, description:String, stars:Int, onClick: (name:String, d
             mutableStateOf(Recept("","",4))
         }
         id.value = addElement(recepts.size)
-        Log.d("sdsds","${id.value}")
         thisRecep.value = Recept(name, description, stars)
         var currentRecept = thisRecep.value
         recepts += currentRecept
@@ -224,16 +230,24 @@ fun recept(name: String, description:String, stars:Int, onClick: (name:String, d
                                 .width(30.dp)
                                 .height(30.dp))
                     }
-
                     Button(onClick = {
-                        Log.d("Indoo", "${id.value}")
-                        if (recepts[id.value].liked == false){
+                        Log.d("INFO", "${id.value}")
+                        if (!liked){
                             recepts[id.value].liked = true
+                            currentUser.liked += recepts[id.value]
+                            GlobalScope.launch {
+                                mvm.addFavoriteToList()
+                            }
+
                         } else {
                             recepts[id.value].liked = false
+                            currentUser.liked -= recepts[id.value]
+                            GlobalScope.launch {
+                                mvm.addFavoriteToList()
+                            }
                         }
                     }) {
-                        if(recepts[id.value].liked == false){
+                        if(!liked){
                             Text(text = "В избранное")
                         } else{
                             Text(text = "Удалить")
@@ -316,16 +330,16 @@ fun nonSelectedScreen(OnClick: () -> Unit){
 }
 
 @Composable
-fun favorScreen(onClick: (name:String, description:String) -> Unit){
+fun favorScreen(mvms: MaintViewModel, onClick: (name:String, description:String) -> Unit){
     Column(Modifier
         .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         //verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Избранное:")
-        for(i in 0 .. recepts.size-1){
-            if(recepts[i].liked){
-                recept(name = recepts[i].name, description = recepts[i].description, stars = recepts[i].stars){
+        for(i in 0 .. currentUser.liked.size-1){
+            if(currentUser.liked[i].liked){
+                recept(true,name = currentUser.liked[i].name, description = currentUser.liked[i].description, stars = currentUser.liked[i].stars, mvm = mvms){
                         name, description -> run {
                             onClick(name,description)
                         }

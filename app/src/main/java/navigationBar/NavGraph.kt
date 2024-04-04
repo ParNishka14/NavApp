@@ -1,11 +1,14 @@
 package navigationBar
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.loxick.navapp.MaintViewModel
+import com.loxick.navapp.Recept
 import com.loxick.navapp.Users
 import com.loxick.navapp.loginGlobal
 import com.loxick.navapp.passwordGlobal
@@ -13,10 +16,11 @@ import com.loxick.navapp.passwordGlobal
 
 var nameRecept:String = ""
 var descriptionRecept:String = ""
-var isLoggined: Boolean = false
+var isLoggined: Boolean = true
 var receptIsSelected: Boolean = false
+var currentUser: Users = Users(0,"","", arrayListOf())
 @Composable
-fun NavGraph(navHostController: NavHostController, context: Context, userss: State<List<Users>>) {
+fun NavGraph(navHostController: NavHostController, context: Context, userss: State<List<Users>>, mvm:MaintViewModel) {
     NavHost(navController = navHostController, startDestination = "loginScreen") {
         composable("loginScreen") {
             loginScreen(context) {
@@ -27,13 +31,16 @@ fun NavGraph(navHostController: NavHostController, context: Context, userss: Sta
                     ) {
                         navHostController.navigate("receptScreen")
                         isLoggined = true
+                        currentUser = userss.value.get(i)
+                        Log.d("INFO","${currentUser.name}")
+                        break
                     } else {
                     }
             }
         }
         composable("receptScreen") {
             if (isLoggined) {
-                receptScreen { name, description ->
+                receptScreen(mvm) { name, description ->
                     run {
                         receptIsSelected = true
                         nameRecept = name
@@ -68,7 +75,7 @@ fun NavGraph(navHostController: NavHostController, context: Context, userss: Sta
             }
         }
         composable("favorScreen") {
-            favorScreen{ name, description ->
+            favorScreen(mvm){ name, description ->
                 run {
                     receptIsSelected = true
                     nameRecept = name

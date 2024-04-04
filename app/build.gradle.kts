@@ -55,8 +55,12 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation ("com.google.code.gson:gson:2.8.5")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
     implementation ("androidx.navigation:navigation-compose:2.7.7") // Библиотека "Room"
-    implementation ("androidx.room:room-runtime:2.6.1") // Библиотека "Room"
+    implementation ("androidx.room:room-runtime:2.6.1")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9") // Библиотека "Room"
     kapt ("androidx.room:room-compiler:2.6.1") // Кодогенератор
     implementation ("androidx.room:room-ktx:2.6.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")

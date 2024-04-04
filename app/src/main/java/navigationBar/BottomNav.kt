@@ -38,8 +38,8 @@ var listScreens = listOf(
                         },
                     colors = androidx.compose.material3.NavigationBarItemDefaults
                         .colors(
-                            selectedIconColor = Color.Red,
-                            indicatorColor = Color.Yellow)
+                            selectedIconColor = Color.White,
+                            indicatorColor = Color.Gray)
                 )
             }
     }

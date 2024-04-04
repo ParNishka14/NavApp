@@ -20,4 +20,5 @@ interface DaoA {
     fun getAllItems(): Flow<List<Users>>
     @Query("DELETE FROM usertTable")
     fun deleteAllUsers(): Int
+
 }
