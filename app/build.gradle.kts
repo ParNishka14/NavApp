@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation ("com.google.code.gson:gson:2.8.5")
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")

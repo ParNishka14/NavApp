@@ -79,9 +79,9 @@ class MainActivity : ComponentActivity() {
             val mvm: MaintViewModel = viewModel(factory = MaintViewModel.factory)
             var userss = mvm.itemsList.collectAsState(initial = emptyList())
 
-            //mvm.database.itemDao().deleteAllUsers()
-            //mvm.insertItem("Andrey", "2511")
-           //mvm.insertItem("Danya", "3698")
+                //mvm.database.itemDao().deleteAllUsers()
+                //mvm.insertItem("Andrey", "2511")
+                //mvm.insertItem("Danya", "3698")
             val contextt = LocalContext.current
             val navController = rememberNavController()
             Scaffold(

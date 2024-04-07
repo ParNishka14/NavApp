@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,6 +45,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.lifecycleScope
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.launch
 import com.loxick.navapp.MaintViewModel
 import com.loxick.navapp.R
@@ -70,8 +74,12 @@ var initialized = mutableStateOf(false)
             .fillMaxSize()
             .background(Color(0xFFDFB069)),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
+        Box(modifier = Modifier.height(300.dp)){
+            val composition by rememberLottieComposition(LottieCompositionSpec.Asset("annim.json"))
+            LottieAnimation(composition)
+        }
         Text(modifier = Modifier.padding(20.dp), text = "Книга рецептов", fontSize = 50.sp, color = Color.White)
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
